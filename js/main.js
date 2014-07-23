@@ -28,11 +28,11 @@ function create() {
     map.addTilesetImage('map', 'tiles');
 
     layer = map.createLayer('map');
-    block = map.createLayer('block');
+    // block = map.createLayer('block');
 
     //  Basically this sets EVERY SINGLE tile to fully collide on all faces
     map.setCollisionByExclusion([1, 2, 3]);
-    block.resizeWorld();
+    // block.resizeWorld();
     layer.resizeWorld();
 
     cursors = game.input.keyboard.createCursorKeys();
@@ -58,7 +58,7 @@ function create() {
 
 function update() {
 
-    game.physics.arcade.collide(sprite, block);
+    game.physics.arcade.collide(sprite, layer);
 
     sprite.body.velocity.x = 0;
     sprite.body.velocity.y = 0;
