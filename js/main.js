@@ -27,8 +27,8 @@ function create() {
 
     map.addTilesetImage('map', 'tiles');
 
-    block = map.createLayer('block');
     layer = map.createLayer('map');
+    block = map.createLayer('block');
 
     //  Basically this sets EVERY SINGLE tile to fully collide on all faces
     map.setCollisionByExclusion([1]);
