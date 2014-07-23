@@ -31,7 +31,7 @@ function create() {
     block = map.createLayer('block');
 
     //  Basically this sets EVERY SINGLE tile to fully collide on all faces
-    map.setCollisionByExclusion([1]);
+    map.setCollisionByExclusion([1, 2, 3]);
     block.resizeWorld();
     layer.resizeWorld();
 
