@@ -38,10 +38,10 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
 
     sprite = game.add.sprite(32, 32, 'phaser');
-    sprite.animations.add('up', [9, 10, 11], 1, true);
-    sprite.animations.add('down', [0, 1, 2], 1, true);
-    sprite.animations.add('left', [3, 4, 5], 1, true);
-    sprite.animations.add('right', [6, 7, 8], 1, true);
+    sprite.animations.add('up', [9, 10, 11], 10, true);
+    sprite.animations.add('down', [0, 1, 2], 10, true);
+    sprite.animations.add('left', [3, 4, 5], 10, true);
+    sprite.animations.add('right', [6, 7, 8], 10, true);
     sprite.anchor.set(0.5);
 
     game.physics.enable(sprite);
@@ -72,16 +72,16 @@ function update() {
     sprite.body.velocity.y = 0;
 
     if (cursors.up.isDown) {
-        sprite.body.velocity.y = -200;
+        sprite.body.velocity.y = -100;
         sprite.animations.play('up');
     } else if (cursors.down.isDown) {
-        sprite.body.velocity.y = 200;
+        sprite.body.velocity.y = 100;
         sprite.animations.play('down');
     } else if (cursors.left.isDown) {
-        sprite.body.velocity.x = -200;
+        sprite.body.velocity.x = -100;
         sprite.animations.play('left');
     } else if (cursors.right.isDown) {
-        sprite.body.velocity.x = 200;
+        sprite.body.velocity.x = 100;
         sprite.animations.play('right');
     } else {
         sprite.animations.stop();
