@@ -1,10 +1,4 @@
-var width = window.innerWidth - 20,
-    height = window.innerHeight - 20;
-
-var width = window.innerWidth - 20,
-    height = window.innerHeight - 20;
-
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', {
     preload: preload,
     create: create,
     update: update,
@@ -13,82 +7,82 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
 
 function preload() {
 
-    game.load.tilemap('mario', 'img/map.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('level3', 'img/map2.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.image('tiles', 'img/map.png');
-    game.load.image('player', 'img/hero.png');
+    game.load.image('phaser', 'img/hero.png');
 
 }
 
 var map;
-var tileset;
-var layer;
-var p;
+var layer, block;
 var cursors;
+var sprite;
+var emitter;
 
 function create() {
 
-    game.physics.startSystem(Phaser.Physics.ARCADE);
-
-    game.stage.backgroundColor = '#787878';
-
-    map = game.add.tilemap('mario');
+    //  A Tilemap object just holds the data needed to describe the map (i.e. the json exported from Tiled, or the CSV exported from elsewhere).
+    //  You can add your own data or manipulate the data (swap tiles around, etc) but in order to display it you need to create a TilemapLayer.
+    map = game.add.tilemap('level3');
 
     map.addTilesetImage('map', 'tiles');
 
-    //  14 = ? block
-    // map.setCollisionBetween(14, 15);
-
-    // map.setCollisionBetween(15, 16);
-    // map.setCollisionBetween(20, 25);
-    // map.setCollisionBetween(27, 29);
-    // map.setCollision(40);
-
     layer = map.createLayer('map');
+    block = map.createLayer('block');
 
-    //  Un-comment this on to see the collision tiles
-    // layer.debug = true;
-
+    //  Basically this sets EVERY SINGLE tile to fully collide on all faces
+    map.setCollisionByExclusion([1]);
+    block.resizeWorld();
     layer.resizeWorld();
-
-    p = game.add.sprite(32, 32, 'player');
-
-    game.physics.enable(p);
-
-    game.physics.arcade.gravity.y = 250;
-
-    p.body.bounce.y = 0.2;
-    p.body.linearDamping = 1;
-    p.body.collideWorldBounds = true;
-
-    game.camera.follow(p);
 
     cursors = game.input.keyboard.createCursorKeys();
 
+    sprite = game.add.sprite(32, 32, 'phaser');
+    sprite.animations.add('up', [9, 10, 11], 1, true);
+    sprite.animations.add('down', [0, 1, 2], 1, true);
+    sprite.animations.add('left', [3, 4, 5], 1, true);
+    sprite.animations.add('right', [6, 7, 8], 1, true);
+    sprite.anchor.set(0.5);
+
+    game.physics.enable(sprite);
+
+    //  Because both our body and our tiles are so tiny,
+    //  and the body is moving pretty fast, we need to add
+    //  some tile padding to the body. WHat this does
+    sprite.body.tilePadding.set(32, 32);
+
+    game.camera.follow(sprite);
+
 }
+
 
 function update() {
 
-    game.physics.arcade.collide(p, layer);
+    game.physics.arcade.collide(sprite, block);
 
-    p.body.velocity.x = 0;
+    sprite.body.velocity.x = 0;
+    sprite.body.velocity.y = 0;
 
     if (cursors.up.isDown) {
-        if (p.body.onFloor()) {
-            p.body.velocity.y = -200;
-        }
-    }
-
-    if (cursors.left.isDown) {
-        p.body.velocity.x = -150;
+        sprite.body.velocity.y = -4;
+        player.animations.play('up');
+    } else if (cursors.down.isDown) {
+        sprite.body.velocity.y = 4;
+        player.animations.play('down');
+    } else if (cursors.left.isDown) {
+        sprite.body.velocity.x = -4;
+        player.animations.play('left');
     } else if (cursors.right.isDown) {
-        p.body.velocity.x = 150;
+        sprite.body.velocity.x = 4;
+        player.animations.play('right');
+    } else {
+        player.animations.stop();
     }
 
 }
 
 function render() {
 
-    // game.debug.body(p);
-    game.debug.bodyInfo(p, 32, 320);
+    // game.debug.body(sprite);
 
 }
