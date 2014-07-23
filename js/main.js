@@ -52,9 +52,17 @@ function create() {
     sprite.body.tilePadding.set(32, 32);
 
     game.camera.follow(sprite);
-
+    game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+    game.input.onDown.add(gofull, this);
 }
 
+function gofull() {
+    if (game.scale.isFullScreen) {
+        game.scale.stopFullScreen();
+    } else {
+        game.scale.startFullScreen();
+    }
+}
 
 function update() {
 
