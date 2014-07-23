@@ -65,18 +65,18 @@ function update() {
 
     if (cursors.up.isDown) {
         sprite.body.velocity.y = -4;
-        player.animations.play('up');
+        sprite.animations.play('up');
     } else if (cursors.down.isDown) {
         sprite.body.velocity.y = 4;
-        player.animations.play('down');
+        sprite.animations.play('down');
     } else if (cursors.left.isDown) {
         sprite.body.velocity.x = -4;
-        player.animations.play('left');
+        sprite.animations.play('left');
     } else if (cursors.right.isDown) {
         sprite.body.velocity.x = 4;
-        player.animations.play('right');
+        sprite.animations.play('right');
     } else {
-        player.animations.stop();
+        sprite.animations.stop();
     }
 
 }
