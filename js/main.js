@@ -9,7 +9,7 @@ function preload() {
 
     game.load.tilemap('level3', 'img/map2.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.image('tiles', 'img/map.png');
-    game.load.image('phaser', 'img/hero.png');
+    game.load.spritesheet('phaser', 'img/hero.png', 32, 32);
 
 }
 
@@ -27,8 +27,8 @@ function create() {
 
     map.addTilesetImage('map', 'tiles');
 
-    layer = map.createLayer('map');
     block = map.createLayer('block');
+    layer = map.createLayer('map');
 
     //  Basically this sets EVERY SINGLE tile to fully collide on all faces
     map.setCollisionByExclusion([1]);
@@ -64,16 +64,16 @@ function update() {
     sprite.body.velocity.y = 0;
 
     if (cursors.up.isDown) {
-        sprite.body.velocity.y = -4;
+        sprite.body.velocity.y = -200;
         sprite.animations.play('up');
     } else if (cursors.down.isDown) {
-        sprite.body.velocity.y = 4;
+        sprite.body.velocity.y = 200;
         sprite.animations.play('down');
     } else if (cursors.left.isDown) {
-        sprite.body.velocity.x = -4;
+        sprite.body.velocity.x = -200;
         sprite.animations.play('left');
     } else if (cursors.right.isDown) {
-        sprite.body.velocity.x = 4;
+        sprite.body.velocity.x = 200;
         sprite.animations.play('right');
     } else {
         sprite.animations.stop();
