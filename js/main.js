@@ -7,8 +7,8 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', {
 
 function preload() {
 
-    game.load.tilemap('level3', 'img/map2.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('tiles', 'img/map.png', 8, 8);
+    game.load.tilemap('level3', 'img/cybernoid.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('tiles', 'img/CybernoidMap3BG_bank.png', 16, 16);
     game.load.spritesheet('phaser', 'img/hero.png', 32, 32);
 
 }
@@ -25,13 +25,13 @@ function create() {
     //  You can add your own data or manipulate the data (swap tiles around, etc) but in order to display it you need to create a TilemapLayer.
     map = game.add.tilemap('level3');
 
-    map.addTilesetImage('map', 'tiles');
+    map.addTilesetImage('CybernoidMap3BG_bank.png', 'tiles');
 
-    layer = map.createLayer('map');
+    layer = map.createLayer('ShoeBox Tile Grab');
     // block = map.createLayer('block');
 
     //  Basically this sets EVERY SINGLE tile to fully collide on all faces
-    map.setCollisionByExclusion([1, 2, 3]);
+    map.setCollisionByExclusion([7, 32, 35, 36, 47]);
     // block.resizeWorld();
     layer.resizeWorld();
 
