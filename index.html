@@ -2,12 +2,122 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>hello phaser!</title>
+    <title>Demo</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/macI.css">
+    <link rel="stylesheet" href="js/libs/jquery-ui-1.11.0/jquery-ui.css">
+
     <script src="js/libs/phaser.min.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/timeLine.js"></script>
+    <script src="js/libs/jquery-ui-1.11.0/external/jquery/jquery.js"></script>
+    <script src="js/libs/jquery-ui-1.11.0/jquery-ui.js"></script>
 </head>
 
 <body>
+
+    <!--   <video id="opening" autoplay="autoplay">
+        <source src="video/opening.mp4" type="video/mp4">
+    </video> -->
+
+    <div id="ipod">
+        <div id="player" class="player">
+
+            <audio src="music/CarryOn.mp3" id="1" preload="auto"></audio>
+            <audio src="music/Billionaire.mp3" id="2" preload="auto"></audio>
+            <audio src="music/SweetChildOMine.mp3" id="3" preload="auto"></audio>
+
+            <button onClick="playMP3('1');">Play 1</button>
+            <button onClick="playMP3('2');">Play 2</button>
+            <button onClick="playMP3('3');">Play 3</button>
+            <button></button>
+            <button></button>
+            <button></button>
+
+            <button id="end" onclick="playerHide()"></button>
+            <button id="pause" onclick="pauseAll()"></button>
+        </div>
+    </div>
+
+
+    <div id="macI">
+      <div class="stage">
+      <div class="positioning animated">
+        <div class="mac">
+          <figure class="back"></figure>
+          <figure class="left"></figure>
+          <figure class="right"></figure>
+          <figure class="top"></figure>
+          <figure class="base-front">
+            <span class="keyboard-port"></span>
+          </figure>
+          <figure class="base-left"></figure>
+          <figure class="base-right"></figure>
+          <figure class="base-back"></figure>
+          <figure class="front">
+            <span class="bezel-top"></span>
+            <span class="bezel-left"></span>
+            <span class="bezel-right"></span>
+            <span class="bezel-bottom"></span>
+            <figure class="screen-container">
+              <span class="screen">
+                <img src="http://hop.ie/mac/images/bg/smiley.png">
+                <span class="sheen"></span>
+              </span>
+            </figure>
+            <figure class="logo">
+              <span class="image"></span>
+              <span class="text">Macintosh Plus</span>
+            </figure>
+            <figure class="floppy"></figure>
+          </figure>
+          <figure class="shadow"></figure>
+        </div>
+      </div>
+    </div>
+    </div>
+
+
+
+
+
 </body>
 
+
+
 </html>
+
+<script>
+// var video = document.getElementsByTagName('video')[0];
+
+// video.onended = function(e) {
+//     $('#opening').addClass("dsappearAnimation");
+
+//     setTimeout(function() {
+//         $('#opening').removeClass("dsappearAnimation");
+//         $('#opening').hide();
+//     }, 1000);
+// };
+//
+
+
+function playMP3(id) {
+    pauseAll();
+    document.getElementById(id).play();
+}
+
+function pauseAll() {
+    var mlist = document.getElementById('player');
+    var audioList = mlist.getElementsByTagName('audio');
+
+    for (var i = 0; i < audioList.length; i++) {
+        var audio = audioList[i];
+        if (!audio.paused) {
+            audio.pause();
+        }
+    }
+}
+
+function playerHide() {
+    $('#ipod').hide();
+}
+</script>
