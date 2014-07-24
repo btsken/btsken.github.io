@@ -87,6 +87,7 @@ function update() {
         sprite.animations.stop();
     }
 
+    
 }
 
 function render() {
