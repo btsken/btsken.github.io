@@ -280,6 +280,42 @@ video.onended = function(e) {
 //     }, 1000);
 // };
 
+    <div id="endGame" style="height:100%;">
+		<img src="HTML5game3/component/game3jobs2.png" id="game3jobs2" hidden>
+		<img src="HTML5game3/component/game3jobs.png" id="game3jobs" hidden>
+		<img src="HTML5game3/component/Svirus.png" id="Vir" hidden>
+		<img src="HTML5game3/component/Bullet.png" id="Bulletpng" hidden>
+		<img src="HTML5game3/component/bigBullet.png" id="bigBulletpng" hidden>
+		<img src="HTML5game3/component/explode1.png" id="explodepng" hidden>
+		<img src="HTML5game3/component/FireSvirus.png" id="Fire" hidden>
+		<img src="HTML5game3/component/fightcancer.png" id="VS" hidden>
+		<img src="HTML5game3/component/gameover.png" id="OVER" hidden>
+		<canvas id="game3" class="game"></canvas>
+		<canvas id="Bullet1" class="Bullet"></canvas>
+		<canvas id="Bullet2" class="Bullet"></canvas>
+		<canvas id="Bullet3" class="Bullet"></canvas>
+		<canvas id="Bullet4" class="Bullet"></canvas>
+		<canvas id="Bullet5" class="Bullet"></canvas>
+		<canvas id="Bullet6" class="Bullet"></canvas>
+		<canvas id="Bullet7" class="Bullet"></canvas>
+		<canvas id="Viru1" class="Viruclass"></canvas>
+    </div>
+
+
+</body>
+
+</html>
+
+<script>
+var video = document.getElementsByTagName('video')[0];
+video.onended = function(e) {
+    $('#opening').addClass("dsappearAnimation");
+    setTimeout(function() {
+        $('#opening').removeClass("dsappearAnimation");
+        $('#opening').hide();
+    }, 1000);
+};
+
 function playMP3(id) {
     pauseAll();
     document.getElementById(id).play();
