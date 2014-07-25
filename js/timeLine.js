@@ -168,7 +168,7 @@ document.onkeydown = function(e) {
         case 119:
             $('#opening').get(0).play();
             break;
-        case 118:
+        case 101:
             $('#opening').addClass("dsappearAnimation");
             setTimeout(function() {
                 $('#opening').removeClass("dsappearAnimation");
@@ -203,6 +203,11 @@ document.onkeydown = function(e) {
 
         case 103:
             $('#final').show();
+            $('#final').get(0).play();
+            break;
+
+        case 104:
+            $('#final').hide();
             break;
 
         case 105:

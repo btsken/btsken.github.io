@@ -12,6 +12,9 @@
 button:focus {
     outline:0;
 }
+#final {
+    display: none;
+}
 #opening, #final {
     position: absolute;
 }

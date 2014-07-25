@@ -14,6 +14,7 @@ h2 {
     margin-bottom: 10px;
 }*/
 #container {
+    /*background-image: url("../img/bg.jpg");*/
     background: #a7cfdf;
     background: -moz-linear-gradient(top, #a7cfdf 0%, #23538a 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #a7cfdf), color-stop(100%, #23538a));
