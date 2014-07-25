@@ -8,7 +8,11 @@
     background-color: black;
     z-index: 100;
 }
-#opening {
+
+button:focus {
+    outline:0;
+}
+#opening, #final {
     position: absolute;
 }
 #ipod {
@@ -24,9 +28,10 @@
 }
 #pause {
     position: absolute;
-    top: 670px;
+    top: 650px;
     background: transparent;
     width: 50px;
+      height: 80px;
     left: 210px;
     border: none;
 }
@@ -39,12 +44,8 @@
     background: transparent;
     border: none;
 }
-#macI {
+#macI, #macII, #catchGame, #endGame {
     display: none;
-   /* left: 50%;
-    position: fixed;
-    text-align: center;	
-    z-index: 2;*/
 }
 .player button {
     outline: 0;
