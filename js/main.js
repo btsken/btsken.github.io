@@ -6,11 +6,9 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', {
 });
 
 function preload() {
-
     game.load.tilemap('level3', 'img/cybernoid.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.image('tiles', 'img/CybernoidMap3BG_bank.png', 16, 16);
     game.load.spritesheet('phaser', 'img/hero.png', 32, 32);
-
 }
 
 var map;
@@ -71,17 +69,22 @@ function update() {
     sprite.body.velocity.x = 0;
     sprite.body.velocity.y = 0;
 
+
+    if (sprite.body.x > 500) {
+        
+    }
+
     if (cursors.up.isDown) {
-        sprite.body.velocity.y = -100;
+        sprite.body.velocity.y = -150;
         sprite.animations.play('up');
     } else if (cursors.down.isDown) {
-        sprite.body.velocity.y = 100;
+        sprite.body.velocity.y = 150;
         sprite.animations.play('down');
     } else if (cursors.left.isDown) {
-        sprite.body.velocity.x = -100;
+        sprite.body.velocity.x = -150;
         sprite.animations.play('left');
     } else if (cursors.right.isDown) {
-        sprite.body.velocity.x = 100;
+        sprite.body.velocity.x = 150;
         sprite.animations.play('right');
     } else {
         sprite.animations.stop();
@@ -91,7 +94,6 @@ function update() {
 }
 
 function render() {
-
-    // game.debug.body(sprite);
-
+    game.debug.bodyInfo(sprite, 32, 420);
+    game.debug.body(sprite);
 }
