@@ -1,0 +1,775 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+    <title></title>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+    <div class="document">
+
+
+        <div class="section" id="id1">
+            <h1><a class="toc-backref" href="#id24">在背景服務中運行</a>
+            </h1>
+            <div class="contents topic" id="id2">
+                <p class="topic-title first">目錄</p>
+                <ul class="simple">
+                    <li><a class="reference internal" href="#id1" id="id24">在背景服務中運行</a>
+                        <ul>
+                            <li><a class="reference internal" href="#id3" id="id25">建立一個背景服務</a>
+                                <ul>
+                                    <li><a class="reference internal" href="#intentservice" id="id26">建立IntentService</a>
+                                    </li>
+                                    <li><a class="reference internal" href="#manifestintentservice" id="id27">在Manifest定義IntentService</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><a class="reference internal" href="#id4" id="id28">發送工作請求到背景服務</a>
+                                <ul>
+                                    <li><a class="reference internal" href="#id5" id="id29">建立和發送工作請求到IntentService</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><a class="reference internal" href="#id6" id="id30">報告工作狀態</a>
+                                <ul>
+                                    <li><a class="reference internal" href="#id7" id="id31">從IntentService報告狀態</a>
+                                    </li>
+                                    <li><a class="reference internal" href="#id8" id="id32">從IntentService接收廣播狀態</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a class="reference internal" href="#id9" id="id33">在背景中讀取數據</a>
+                        <ul>
+                            <li><a class="reference internal" href="#cursorloader" id="id34">使用CursorLoader來作查詢</a>
+                                <ul>
+                                    <li><a class="reference internal" href="#cursorloaderactivity" id="id35">定義使用CursorLoader的activity</a>
+                                    </li>
+                                    <li><a class="reference internal" href="#id10" id="id36">初始化查詢</a>
+                                    </li>
+                                    <li><a class="reference internal" href="#id11" id="id37">開始查詢</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><a class="reference internal" href="#id12" id="id38">處理結果</a>
+                                <ul>
+                                    <li><a class="reference internal" href="#id13" id="id39">處理查詢結果</a>
+                                    </li>
+                                    <li><a class="reference internal" href="#cursor" id="id40">刪除舊的Cursor參考</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a class="reference internal" href="#id14" id="id41">管理設備清醒狀態</a>
+                        <ul>
+                            <li><a class="reference internal" href="#id15" id="id42">保持裝置清醒</a>
+                                <ul>
+                                    <li><a class="reference internal" href="#id16" id="id43">保持螢幕清醒</a>
+                                    </li>
+                                    <li><a class="reference internal" href="#cpu" id="id44">保持CPU開啟</a>
+                                    </li>
+                                    <li><a class="reference internal" href="#wakefulbroadcastreceiver" id="id45">使用WakefulBroadcastReceiver</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><a class="reference internal" href="#alarm" id="id46">排程重複alarm</a>
+                                <ul>
+                                    <li><a class="reference internal" href="#id17" id="id47">了解交易</a>
+                                    </li>
+                                    <li><a class="reference internal" href="#id18" id="id48">最佳實踐</a>
+                                    </li>
+                                    <li><a class="reference internal" href="#id19" id="id49">設定重複的Alarm</a>
+                                    </li>
+                                    <li><a class="reference internal" href="#id20" id="id50">選擇alarm類型</a>
+                                        <ul>
+                                            <li><a class="reference internal" href="#elapsed-realtime-wakeup" id="id51">ELAPSED_REALTIME_WAKEUP範例</a>
+                                            </li>
+                                            <li><a class="reference internal" href="#rtc" id="id52">RTC範例</a>
+                                            </li>
+                                            <li><a class="reference internal" href="#id21" id="id53">決定你的alarm需要多少的精準度</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li><a class="reference internal" href="#id22" id="id54">清除alarm</a>
+                                    </li>
+                                    <li><a class="reference internal" href="#id23" id="id55">當裝置啟動時運行alarm</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <p>一般來說，最多只能有一個ui thread 在前台的應用程序。因為耗時運算將會阻礙使用者界面的響應，這會令使用者不悅，甚至導致系統錯誤，為了要避免此問題，android framework提供了一些類別來幫助你無負載操作上在後台運行一個單獨的線程，最有用的就是IntentService。</p>
+            <div class="section" id="id3">
+                <h2><a class="toc-backref" href="#id25">建立一個背景服務</a>
+                </h2>
+                <p>IntentService提供一個簡單的結構讓後台的線程中運行操作，這允許他處理耗時運算的操作，並且不會影響到使用者界面的響應。同時，IntentService不會影響到大部分使用者界面的生命週期事件，所以它能夠在一個可以關閉AsyncTask的環境中運行。</p>
+                <p>IntentService有一些限制</p>
+                <ul class="simple">
+                    <li>他無法直接和你的使用者見面互動，要將結果反映到使用者界面的話，必須先發送到activity</li>
+                    <li>工作請求會依次運行，如果有一個操作正在IntentService中運行，此時你再發送另一個請求，那麼這個請求將會等到第一個操作結束後才會被執行</li>
+                    <li>在IntentService運行的操作不會被打斷</li>
+                </ul>
+                <p>然而，大多數的情況下，簡單的背景操作使用IntentService是比較好的方法。</p>
+                <p>這個章節會展示如何建立自己的IntentService子類別，也會教你如何建立必要的callback方法onHandleIntent()，最後會展示如何在manifest定義IntentService。</p>
+                <div class="section" id="intentservice">
+                    <h3><a class="toc-backref" href="#id26">建立IntentService</a>
+                    </h3>
+                    <p>要建立IntentService元件的話，定義一個類別並繼承IntentService，然後覆寫onHandleIntent()，範例如下：</p>
+                    <pre class="literal-block">
+public class RSSPullService extends IntentService {
+        &#64;Override
+        protected void onHandleIntent(Intent workIntent) {
+            // Gets data from the incoming Intent
+            String dataString = workIntent.getDataString();
+            ...
+            // Do work here, based on the contents of dataString
+            ...
+        }
+}
+</pre>
+                    <p>注：其他一般service元件的callback，像是onStartCommand()會被IntentService自動觸發，在IntentService你要避免覆寫這些callback。</p>
+                </div>
+                <div class="section" id="manifestintentservice">
+                    <h3><a class="toc-backref" href="#id27">在Manifest定義IntentService</a>
+                    </h3>
+                    <p>IntentService也需要在應用程式的manifest中定義一個實體，使用&lt;service&gt;作為&lt;application&gt;的子元素來提供這個實體：</p>
+                    <pre class="literal-block">
+ &lt;application
+    android:icon=&quot;&#64;drawable/icon&quot;
+    android:label=&quot;&#64;string/app_name&quot;&gt;
+    ...
+    &lt;!--
+        Because android:exported is set to &quot;false&quot;,
+        the service is only available to this app.
+    --&gt;
+    &lt;service
+        android:name=&quot;.RSSPullService&quot;
+        android:exported=&quot;false&quot;/&gt;
+    ...
+&lt;application/&gt;
+</pre>
+                    <p>android:name屬性指定了IntentService的類別名稱</p>
+                    <p>注：&lt;service&gt;元素部包含intent filter，activity發送一個工作請求到這個服務，會使用一個明確的Intent ，所以並不需要過濾器。這也就說明只有相同app裡的元件或者其他擁有相同用戶ID 的app 可以訪問這個服務。</p>
+                    <p>現在你有了基本的IntentService類別，你可以使用Intent 對象發送一個工作請求。構造這個對象的步驟以及發送他們到你的IntentService的過程會在下個章節提及。</p>
+                </div>
+            </div>
+            <div class="section" id="id4">
+                <h2><a class="toc-backref" href="#id28">發送工作請求到背景服務</a>
+                </h2>
+                <p>前一個章節展示了如何建立IntentService類別。這個章節將展示如何觸發IntentService來用傳送Intent的方式執行操作。這個Intent可以選擇性的包含資料給IntentService來處理，你可以從activity或fragment發送一個Intent給IntentService。</p>
+                <div class="section" id="id5">
+                    <h3><a class="toc-backref" href="#id29">建立和發送工作請求到IntentService</a>
+                    </h3>
+                    <p>為了要建立工作請求和發送他到IntentService，建立一個明確的Intent，加入工作請求的資料進去，並呼叫startService()來傳送他給IntentService。</p>
+                    <ol class="arabic simple">
+                        <li>建立一個新的，明確的Intent給IntentService命名為RSSPullService</li>
+                    </ol>
+                    <pre class="literal-block">
+/*
+* Creates a new Intent to start the RSSPullService
+* IntentService. Passes a URI in the
+* Intent's &quot;data&quot; field.
+*/
+mServiceIntent = new Intent(getActivity(), RSSPullService.class);
+mServiceIntent.setData(Uri.parse(dataUrl));
+</pre>
+                    <ol class="arabic simple" start="2">
+                        <li>呼叫startService()</li>
+                    </ol>
+                    <pre class="literal-block">
+// Starts the IntentService
+getActivity().startService(mServiceIntent);
+</pre>
+                    <p>注，你可以在Activity或Fragment的任一處傳送工作請求，舉例來說，假設你需要先取得使用者的輸入，你可以從點擊按鈕或是手勢模擬來發送請求。</p>
+                    <p>一旦你呼叫startService()，IntentService會執行onHandleIntent()，之後停止自己。</p>
+                    <p>下一個步驟是報告回原始Activity或Fragment的工作請求的結果，下個章節會告訴你如何使用BroadcastReceiver實作。</p>
+                </div>
+            </div>
+            <div class="section" id="id6">
+                <h2><a class="toc-backref" href="#id30">報告工作狀態</a>
+                </h2>
+                <p>這一課將告訴您如何報告在後台服務發送請求的組件運行的工作請求的狀態。這會允許你一些事，例如，報告中的請求的狀態活動對象的用戶界面。推薦的方式來發送和接收狀態是使用LocalBroadcastManager，這限制了廣播的Intent對象的組件在自己的應用程序。</p>
+                <div class="section" id="id7">
+                    <h3><a class="toc-backref" href="#id31">從IntentService報告狀態</a>
+                    </h3>
+                    <p>要在IntentService傳送工作請求的狀態給其他元件，首先建立一個Intent，其中包含其擴展數據的狀態，作為一個選項，你可以加入一個動作和資料URL給Intent。</p>
+                    <p>下一步，使用LocalBroadcastManager.sendBroadcast()來傳送Intent，他發送Intent給在你程式裡的任何已註冊接收該應用程序中的組件。要得到LocalBroadcastManager的實體，呼叫getInstance()。</p>
+                    <p>範例如下：</p>
+                    <pre class="literal-block">
+public final class Constants {
+   ...
+   // Defines a custom Intent action
+   public static final String BROADCAST_ACTION =
+       &quot;com.example.android.threadsample.BROADCAST&quot;;
+   ...
+   // Defines the key for the status &quot;extra&quot; in an Intent
+   public static final String EXTENDED_DATA_STATUS =
+       &quot;com.example.android.threadsample.STATUS&quot;;
+   ...
+}
+public class RSSPullService extends IntentService {
+...
+   /*
+    * Creates a new Intent containing a Uri object
+    * BROADCAST_ACTION is a custom Intent action
+    */
+   Intent localIntent =
+           new Intent(Constants.BROADCAST_ACTION)
+           // Puts the status into the Intent
+           .putExtra(Constants.EXTENDED_DATA_STATUS, status);
+   // Broadcasts the Intent to receivers in this app.
+   LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+...
+}
+</pre>
+                    <p>接下來的步驟是在發送的原始工作請求的組件裡處理傳入廣播Intent物件。</p>
+                </div>
+                <div class="section" id="id8">
+                    <h3><a class="toc-backref" href="#id32">從IntentService接收廣播狀態</a>
+                    </h3>
+                    <p>為了要接收廣播Intent物件，使用BroadcastReceiver的子類別，在子類別裡，實作 LocalBroadcastManager觸發的BroadcastReceiver.onReceive() callback 方法，當他接收一個Intent。LocalBroadcastManager傳送收到的Intent給BroadcastReceiver.onReceive()。</p>
+                    <p>範例如下：</p>
+                    <pre class="literal-block">
+// Broadcast receiver for receiving status updates from the IntentService
+private class ResponseReceiver extends BroadcastReceiver
+{
+   // Prevents instantiation
+   private DownloadStateReceiver() {
+   }
+   // Called when the BroadcastReceiver gets an Intent it's registered to receive
+   &#64;
+   public void onReceive(Context context, Intent intent) {
+...
+       /*
+        * Handle Intents here.
+        */
+...
+   }
+}
+</pre>
+                    <p>一旦你定義了BroadcastReceiver，你可以定義給特定動作，類別，數據的filter。要完成這個的話，建立一個IntentFilter，這第一個片段顯示了如何定義filter：</p>
+                    <pre class="literal-block">
+// Class that displays photos
+public class DisplayActivity extends FragmentActivity {
+   ...
+   public void onCreate(Bundle stateBundle) {
+       ...
+       super.onCreate(stateBundle);
+       ...
+       // The filter's action is BROADCAST_ACTION
+       IntentFilter mStatusIntentFilter = new IntentFilter(
+               Constants.BROADCAST_ACTION);
+
+       // Adds a data filter for the HTTP scheme
+       mStatusIntentFilter.addDataScheme(&quot;http&quot;);
+       ...
+</pre>
+                    <p>為了要在系統上註冊BroadcastReceiver和IntentFilter，取得LocalBroadcastManager實體並且呼叫他的registerReceiver()方法，下一個片段顯示如何註冊BroadcastReceiver和IntentFilter：</p>
+                    <pre class="literal-block">
+// Instantiates a new DownloadStateReceiver
+     DownloadStateReceiver mDownloadStateReceiver =
+             new DownloadStateReceiver();
+     // Registers the DownloadStateReceiver and its intent filters
+     LocalBroadcastManager.getInstance(this).registerReceiver(
+             mDownloadStateReceiver,
+             mStatusIntentFilter);
+     ...
+</pre>
+                    <p>單一個BroadcastReceiver可以處理多種的廣播Intent物件，每一個都有自己的動作。這個特徵允許你在每一個動作上運行不同的程式碼而不需要在每一個動作上分別定義BroadcastReceiver。要定義其他的IntentFilter給相同的BroadcastReceiver，建立IntentFilter並且重複呼叫registerReceiver()。範例如下：</p>
+                    <pre class="literal-block">
+/*
+ * Instantiates a new action filter.
+ * No data filter is needed.
+ */
+statusIntentFilter = new IntentFilter(Constants.ACTION_ZOOM_IMAGE);
+...
+// Registers the receiver with the new filter
+LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+        mDownloadStateReceiver,
+        mIntentFilter);
+</pre>
+                    <p>傳送一個廣播Intent不能啟動或回覆一個Activity。BroadcastReceiver對於Activity來說是在接收和運行Intent物件，甚至當你的應用程式在背景時，也不會強制應用程式到前端，假如你希望通知使用者有關在背景發生事件當應用程式不是可見的時，使用Notification。千萬不要用傳入的廣播Intent回應來啟動Activity。</p>
+                </div>
+            </div>
+        </div>
+        <div class="section" id="id9">
+            <h1><a class="toc-backref" href="#id33">在背景中讀取數據</a>
+            </h1>
+            <p>查詢一個你想要顯示數據用的ContentProvider需要一點時間，假如你直接從activity查詢，有可能會阻塞並且造成系統發出&quot;應用程式沒有回應&quot;的訊息，即使沒有發生，使用者也會遇到惱人的界面延遲，要避免此問題，你應該在不同的線程上另外查詢，直到他結束並顯示結果。</p>
+            <p>你可以透過非同步的方式在背景運行一個查詢，並在他結束時重新連接到你的activity。這個物件是CursorLoader，除了執行初始的背景查詢，當相關的數據查詢改變，CursorLoader會自動重新啟動查詢。</p>
+            <p>這個教學描述如何使用CursorLoader來運行背景查詢，範例會使用v4 Support Library以能支援到android 1.6版。</p>
+            <div class="section" id="cursorloader">
+                <h2><a class="toc-backref" href="#id34">使用CursorLoader來作查詢</a>
+                </h2>
+                <p>CursorLoader運行在針對背景非同步查詢的ContentProvider，並將結果返回到被他們呼叫的activity或FragmentActivity。這樣能允許activity或FragmentActivity繼續和使用者互動，同時查詢也會繼續進行。</p>
+                <div class="section" id="cursorloaderactivity">
+                    <h3><a class="toc-backref" href="#id35">定義使用CursorLoader的activity</a>
+                    </h3>
+                    <p>CursorLoader在activity或FragmentActivity在activity或FragmentActivity中會使用LoaderCallbacks&lt;Cursor&gt;介面，CursorLoader會觸發定義在此界面的callback來和類別作溝通；這個章節頷下一個會描述各個callback的細節。</p>
+                    <p>舉例來說，這是你應該如何使用支援函式庫的CursorLoader來定義一個FragmentActivity，透過繼承FragmentActivity，你可以得到CursorLoader和Fragment的支援。</p>
+                    <pre class="literal-block">
+public class PhotoThumbnailFragment extends FragmentActivity implements
+       LoaderManager.LoaderCallbacks&lt;Cursor&gt; {
+...
+}
+</pre>
+                </div>
+                <div class="section" id="id10">
+                    <h3><a class="toc-backref" href="#id36">初始化查詢</a>
+                    </h3>
+                    <p>要初始化查詢的話，呼叫LoaderManager.initLoader()，他會初始背景的framework。你可以在查詢中使用該用戶輸入的資訊後這麼作，或是如果你不需要任何用戶數據，你可以在onCreate（）或 onCreateView（）執行。例如：</p>
+                    <pre class="literal-block">
+// Identifies a particular Loader being used in this component
+  private static final int URL_LOADER = 0;
+  ...
+  /* When the system is ready for the Fragment to appear, this displays
+   * the Fragment's View
+   */
+  public View onCreateView(
+          LayoutInflater inflater,
+          ViewGroup viewGroup,
+          Bundle bundle) {
+      ...
+      /*
+       * Initializes the CursorLoader. The URL_LOADER value is eventually passed
+       * to onCreateLoader().
+       */
+      getLoaderManager().initLoader(URL_LOADER, null, this);
+      ...
+  }
+</pre>
+                    <p>注：getLoaderManager()只能在Fragment類別下使用，要在FragmentActivity取得LoaderManager，呼叫getSupportLoaderManager()。</p>
+                </div>
+                <div class="section" id="id11">
+                    <h3><a class="toc-backref" href="#id37">開始查詢</a>
+                    </h3>
+                    <p>在背景framework在初始化的同時，他會呼叫onCreateLoader()來實現。為了開始查詢，要從此方法回傳一個CursorLoader。你可以實例化一個空CursorLoader，然後使用它的方法來定義您的查詢，也可以實例化對象並定義在同一時間查詢：</p>
+                    <pre class="literal-block">
+/*
+* Callback that's invoked when the system has initialized the Loader and
+* is ready to start the query. This usually happens when initLoader() is
+* called. The loaderID argument contains the ID value passed to the
+* initLoader() call.
+*/
+&#64;Override
+public Loader&lt;Cursor&gt; onCreateLoader(int loaderID, Bundle bundle)
+{
+   /*
+    * Takes action based on the ID of the Loader that's being created
+    */
+   switch (loaderID) {
+       case URL_LOADER:
+           // Returns a new CursorLoader
+           return new CursorLoader(
+                       getActivity(),   // Parent activity context
+                       mDataUrl,        // Table to query
+                       mProjection,     // Projection to return
+                       null,            // No selection clause
+                       null,            // No selection arguments
+                       null             // Default sort order
+       );
+       default:
+           // An invalid id was passed in
+           return null;
+   }
+}
+</pre>
+                    <p>一旦背景framework有此物件，他就會開始在背景查詢，當查詢結束時，背景framework會呼叫onLoadFinished()，這部份會在下一個章節介紹。</p>
+                </div>
+            </div>
+            <div class="section" id="id12">
+                <h2><a class="toc-backref" href="#id38">處理結果</a>
+                </h2>
+                <p>如上一張節說的，你應該開始加載你在onCreateLoader（）實現的CursorLoader數據。然後，加載程序提供了查詢Activity或FragmentActivity的結果，在LoaderCallbacks.onLoadFinished（）實現 。一個傳入的​​參數給這個方法是一個包含查詢結果的Cursor。你可以使用此對象來更新數據顯示，或做進一步的處理。</p>
+                <p>除了​​onCreateLoader（）和 onLoadFinished（），你還必須實現 onLoaderReset（） 。當調用此方法時，CursorLoader檢測的相關數據光標已經改變。當數據發生變化時，架構也重新運行當前查詢。</p>
+                <div class="section" id="id13">
+                    <h3><a class="toc-backref" href="#id39">處理查詢結果</a>
+                    </h3>
+                    <p>要顯示CursorLoader回傳的Cursor數據，使用View類別來實作AdapterView並且提供這個view一個adapter來實現CursorAdapter。系統會自動從Cursor移動數據到view。</p>
+                    <p>在你有任何數據顯示前，你可以設置一個view和adapter之間的連結，並且之後在onLoadFinished()方法內移動Cursor進入adapter，同時你移動Cursor進入adapter，系統會自動開心view。假如你改變Cursor的內容他也會自動發生。</p>
+                    <p>範例如下：</p>
+                    <pre class="literal-block">
+public String[] mFromColumns = {
+   DataProviderContract.IMAGE_PICTURENAME_COLUMN
+};
+public int[] mToFields = {
+   R.id.PictureName
+};
+// Gets a handle to a List View
+ListView mListView = (ListView) findViewById(R.id.dataList);
+/*
+* Defines a SimpleCursorAdapter for the ListView
+*
+*/
+SimpleCursorAdapter mAdapter =
+   new SimpleCursorAdapter(
+           this,                // Current context
+           R.layout.list_item,  // Layout for a single row
+           null,                // No Cursor yet
+           mFromColumns,        // Cursor columns to use
+           mToFields,           // Layout fields to use
+           0                    // No flags
+   );
+// Sets the adapter for the view
+mListView.setAdapter(mAdapter);
+...
+/*
+* Defines the callback that CursorLoader calls
+* when it's finished its query
+*/
+&#64;Override
+public void onLoadFinished(Loader&lt;Cursor&gt; loader, Cursor cursor) {
+   ...
+   /*
+    * Moves the query results into the adapter, causing the
+    * ListView fronting this adapter to re-display
+    */
+   mAdapter.changeCursor(cursor);
+}
+</pre>
+                </div>
+                <div class="section" id="cursor">
+                    <h3><a class="toc-backref" href="#id40">刪除舊的Cursor參考</a>
+                    </h3>
+                    <p>每當Cursor變為無效時，該Cursor會重置。這是經常會發生的因為與相關聯的數據的Cursor已經改變。在重新運行該查詢之前，framework將調用你的onLoaderReset（） 。在這個callback，你應該刪除到當前所有引用的Cursor，以防止內存洩漏。一旦 onLoaderReset（） 完成，CursorLoader再運行其查詢。</p>
+                    <p>範例如下：</p>
+                    <pre class="literal-block">
+/*
+* Invoked when the CursorLoader is being reset. For example, this is
+* called if the data in the provider changes and the Cursor becomes stale.
+*/
+&#64;Override
+public void onLoaderReset(Loader&lt;Cursor&gt; loader) {
+
+   /*
+    * Clears out the adapter's reference to the Cursor.
+    * This prevents memory leaks.
+    */
+   mAdapter.changeCursor(null);
+}
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="section" id="id14">
+            <h1><a class="toc-backref" href="#id41">管理設備清醒狀態</a>
+            </h1>
+            <p>當android設備處於閒置狀態，他會先變暗然後關閉螢幕，最後關閉CPU。這樣可以避免電池太快沒電，然而，有些時候，你的應用程序可能需要不同的行為：</p>
+            <ul class="simple">
+                <li>如遊戲或電影的應用程序可能需要保持屏幕打開。</li>
+                <li>其他應用程序可能不需要畫面持續顯示，但他們可能需要在CPU繼續運行，直到一個關鍵的操作完成。</li>
+            </ul>
+            <p>這個章節描述如何保持裝置清醒而不會耗盡其電池。</p>
+            <div class="section" id="id15">
+                <h2><a class="toc-backref" href="#id42">保持裝置清醒</a>
+                </h2>
+                <p>為避免耗盡電池，Android設備會迅速閒置然後睡著。然而，有些時候，一個應用程序需要喚醒屏幕或CPU，並保持清醒完成一些工作。</p>
+                <p>你採取的方法取決於你的應用程序的需求。然而，一般的經驗法則是，你應該使用最輕量級的方法可以為你的應用程序，以盡量減少對系統資源的應用程序的影響。以下各節描述如何處理這些默認睡眠行為和你的應用程式需求相衝突的情況。</p>
+                <div class="section" id="id16">
+                    <h3><a class="toc-backref" href="#id43">保持螢幕清醒</a>
+                    </h3>
+                    <p>某些應用程序需要保持屏幕開啟時，如遊戲或電影的應用程序。要做到這一點，最好的辦法是使用 FLAG_KEEP_SCREEN_ON 在你的activity（只有在activity，無法在service或其他應用程序組件）。例如：</p>
+                    <pre class="literal-block">
+public class MainActivity extends Activity {
+ &#64;Override
+ protected void onCreate(Bundle savedInstanceState) {
+   super.onCreate(savedInstanceState);
+   setContentView(R.layout.activity_main);
+   getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+ }
+</pre>
+                    <p>這種方法的好處是，他不像喚醒鎖，它不需要特殊的權限，並且平台正確地管理使用者在應用程序之間移動，你的應用程序不必擔心釋放未使用的資源。</p>
+                    <p>實現這個另一種方式是在應用程序的佈局XML文件，使用android:keepScreenOn屬性：</p>
+                    <pre class="literal-block">
+&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+   android:layout_width=&quot;match_parent&quot;
+   android:layout_height=&quot;match_parent&quot;
+   android:keepScreenOn=&quot;true&quot;&gt;
+   ...
+&lt;/RelativeLayout&gt;
+</pre>
+                    <p>使用android:keepScreenOn =“true”和FLAG_KEEP_SCREEN_ON有一樣的效果。你可以使用任何最適合你的應用程序的方法。在你的activity中設立程式用標籤的優點是他會提供你清除標籤的選項並且讓螢幕關閉。</p>
+                    <p>注：你不需要清除 FLAG_KEEP_SCREEN_ON 標誌，除非你不再需要的畫面留在你運行應用程序（例如，如果你想在屏幕超時閒置一段時間後）。window manager負責確保正確的事情發生時，應用程序進入背景或返回前台。但是，如果你想明確地清除標誌，從而讓屏幕關掉再使用clearFlags():getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) 。</p>
+                </div>
+                <div class="section" id="cpu">
+                    <h3><a class="toc-backref" href="#id44">保持CPU開啟</a>
+                    </h3>
+                    <p>如果你需要保持CPU的運行以完成一些工作，在設備進入睡眠狀態之前，你可以使用一個PowerManager叫做喚醒鎖系統服務功能。喚醒鎖允許應用程序來控制主機設備的電源狀態。</p>
+                    <p>建立和保持喚醒鎖可以對主機設備的電池壽命產生了巨大影響。因此，你應該使用喚醒鎖只有在絕對必要時，並在盡可能持有他們越短越好。舉例來說，你不應該需要在activity中使用喚醒鎖。如上所述，如果您想保留在屏幕上的activity，請使用 FLAG_KEEP_SCREEN_ON。</p>
+                    <p>一個合理的情況下使用喚醒鎖是當螢幕關閉時，背景服務需要喚醒鎖來保持CPU運轉。然而，盡量不要使用此做法因為他會影響電池的壽命。</p>
+                    <p>要使用喚醒鎖，第一步是在manifest添加WAKE_LOCK的權限：</p>
+                    <pre class="literal-block">
+&lt;uses-permission android:name=&quot;android.permission.WAKE_LOCK&quot; /&gt;
+</pre>
+                    <p>假如你的程式包含廣播接收來使用service作一些事情，你可以透過WakefulBroadcastReceiver管理你的喚醒鎖，這是一個比較好的方法，假如你的程式部遵循這種模式，這邊是你如何直接設置喚醒鎖。</p>
+                    <pre class="literal-block">
+PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+Wakelock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+       &quot;MyWakelockTag&quot;);
+wakeLock.acquire();
+</pre>
+                    <p>要解除喚醒鎖定，調用 wakelock.release（） 。這將釋放你的要求到CPU中。重要的是當你的程式停止時，使用他來釋放喚醒鎖，以避免耗盡電池。</p>
+                </div>
+                <div class="section" id="wakefulbroadcastreceiver">
+                    <h3><a class="toc-backref" href="#id45">使用WakefulBroadcastReceiver</a>
+                    </h3>
+                    <p>與服務結合使用的廣播接收器可讓您管理的背景任務的生命週期。</p>
+                    <p>WakefulBroadcastReceiver是一種特殊類型的廣播接收器，他需要為您的應用程序創建和管理PARTIAL_WAKE_LOCK。WakefulBroadcastReceiver 傳送工作到service （通常是一個 IntentService），同時確保該設備不會轉換回去睡覺。如果你不持有喚醒鎖，而在工作完成前轉換工作給service，實際上是允許設備回去睡覺。最終的結果是，應用程序可能無法完成這樣的工作，直到某之後的某個時間點，這是不是你想要的。</p>
+                    <p>在第一個步驟使用WakefulBroadcastReceiver是將它添加到manifest，與任何其他廣播接收器：</p>
+                    <pre class="literal-block">
+&lt;receiver android:name=&quot;.MyWakefulReceiver&quot;&gt;&lt;/receiver&gt;
+</pre>
+                    <p>下面的代碼用startWakefulService（）方法啟動MyIntentService 。這種方法相當於startService（），不同的是WakefulBroadcastReceiver被保持喚醒鎖定在服務啟動時。startWakefulService（）傳送的intent擁有一個額外的識別喚醒鎖：</p>
+                    <pre class="literal-block">
+public class MyWakefulReceiver extends WakefulBroadcastReceiver {
+
+   &#64;Override
+   public void onReceive(Context context, Intent intent) {
+
+       // Start the service, keeping the device awake while the service is
+       // launching. This is the Intent to deliver to the service.
+       Intent service = new Intent(context, MyIntentService.class);
+       startWakefulService(context, service);
+   }
+}
+</pre>
+                    <p>當service結束，他會呼叫MyWakefulReceiver.completeWakefulIntent()來釋放喚醒鎖。completeWakefulIntent()方法是從通過在同一個intent作為其參數來從WakefulBroadcastReceiver傳遞：</p>
+                    <pre class="literal-block">
+public class MyIntentService extends IntentService {
+   public static final int NOTIFICATION_ID = 1;
+   private NotificationManager mNotificationManager;
+   NotificationCompat.Builder builder;
+   public MyIntentService() {
+       super(&quot;MyIntentService&quot;);
+   }
+   &#64;Override
+   protected void onHandleIntent(Intent intent) {
+       Bundle extras = intent.getExtras();
+       // Do the work that requires your app to keep the CPU running.
+       // ...
+       // Release the wake lock provided by the WakefulBroadcastReceiver.
+       MyWakefulReceiver.completeWakefulIntent(intent);
+   }
+}
+</pre>
+                </div>
+            </div>
+            <div class="section" id="alarm">
+                <h2><a class="toc-backref" href="#id46">排程重複alarm</a>
+                </h2>
+                <p>alarm（基於AlarmManager類別）給你一個方法到應用程序的生命週期之外執行時間為基礎的操作。舉例來說，你可以使用一個alarm來啟動一個長時間運行的操作，如一天下載一次天氣預報。</p>
+                <p>alarm具有以下特點：</p>
+                <ul class="simple">
+                    <li>他們讓在設定的時間和或每間隔一段開啟intent。</li>
+                    <li>你可以用它們結合廣播接收機來啟動服務和執行其他操作。</li>
+                    <li>因為這些操作在應用程序之外，所以你可以用它們來觸發事件或動作，甚至當你的應用程序沒有運行，或是設備本身是睡著了。</li>
+                    <li>他們幫助你減少你的應用程序的資源需求。您可以安排操作不依賴於定時器或連續運行的背景服務。</li>
+                </ul>
+                <p>注：對於確定在應用程序的生命週期中的時間操作，要考慮使用hadler類別搭配timer和thread。這種方法使android更好地控制系統資源。</p>
+                <div class="section" id="id17">
+                    <h3><a class="toc-backref" href="#id47">了解交易</a>
+                    </h3>
+                    <p>重複alarm在受限的彈性下是相對簡單的機制。這可能不是你的應用程序的最佳選擇，特別是如果你需要觸發網絡操作。設計不當的報警器會導致電池耗電，並把顯著增加伺服器的負載。</p>
+                    <p>這是一個常見的請況，在應用程序的生命週期之外觸發執行同步數據的伺服器。在這個情況下，你可能想用一個重複alarm。但是，如果你擁有承載您的應用程序的數據伺服器，使用Google Cloud Messaging（GCM）結合sync adapter比用AlarmManager更好。雖然同步的adapter為你提供了和AlarmManager全部相同的排程選項，但它為您提供顯著更大的靈活性。例如，同步可以基於從伺服器/設備的“新數據”消息或是使用者的一天活動（或靜止）等等。</p>
+                </div>
+                <div class="section" id="id18">
+                    <h3><a class="toc-backref" href="#id48">最佳實踐</a>
+                    </h3>
+                    <p>在你設計的重複alarm的每一個選擇會有怎樣的後果取決於你的應用程序如何使用（或濫用）系統資源。例如，假設一個受歡迎的應用程序和伺服器同步。如果同步操作是基於時間，每個應用程序都同步在晚上11:00，在服務器上的負載會導致高延遲，甚至是“拒絕服務攻擊”。以下為使用alarm的最佳實踐：</p>
+                    <ul class="simple">
+                        <li>添加隨機性給任意重複alarm出發造成的網路請求：</li>
+                    </ul>
+                    <blockquote>
+                        <ul class="simple">
+                            <li>當觸發alarm時操作任意本地工作。“本地工作”是不需要連接伺服器，或需要從伺服器上接收數據</li>
+                            <li>同時，排程一個包含網絡的請求在一些隨機的一段時間。</li>
+                        </ul>
+                    </blockquote>
+                    <ul class="simple">
+                        <li>保持你的alarm頻率降到最低</li>
+                        <li>沒事不要喚醒裝置（此行為一alarm的行為而定）</li>
+                        <li>別使你的alarm的觸發時間很精確</li>
+                    </ul>
+                    <p>使用 setInexactRepeating() 取代setRepeating()方法。當你使用setInexactRepeating()，從Android的多個應用程序同步重複alarm，並在同一時間觸發他們。這能減少系統強制喚醒設備的總次數，因此能降低電量的消耗。在android4.4，所有重複的alarm都是不精確的。注意：儘管setInexactRepeating()是一個改進setRepeating()，如果一個應用程序的每個實例都在同一時間握手伺服器，它仍然可以壓倒一個伺服器。因此，正如上面所討論的，對於網絡的請求，讓alarm增加一些隨機性。</p>
+                    <ul class="simple">
+                        <li>如果可能的話避免基於時鐘時間的alarm</li>
+                    </ul>
+                    <p>基於精確觸發時間的重複alarms沒有很好地擴展。你可以使用ELAPSED_REALTIME。在下面的部分中對不同的告警類型進行了更詳細的描述。</p>
+                </div>
+                <div class="section" id="id19">
+                    <h3><a class="toc-backref" href="#id49">設定重複的Alarm</a>
+                    </h3>
+                    <p>如上所敘，對於定期調度的事件或數據查詢重複alarm是一個非常好的選擇。重複alarm有以下特徵：</p>
+                    <ul class="simple">
+                        <li>一個alarm類型</li>
+                        <li>一個觸發時間，如果你指定的觸發時間是在過去，這個alarm會馬上觸發</li>
+                        <li>alarm間隔，例如：一天一次，一小時一次，五分鐘一次等等</li>
+                        <li>當alarm被觸發時將啟動待處理的Intent。當您使用相同的Intent設置第二次alarm時，它取代了原來的alarm。</li>
+                    </ul>
+                </div>
+                <div class="section" id="id20">
+                    <h3><a class="toc-backref" href="#id50">選擇alarm類型</a>
+                    </h3>
+                    <p>在使用重複alarm時你首先考慮的問題是你應該用什麼類型。</p>
+                    <p>有兩個通用的alarm類型： &quot;elapsed real time&quot; 和&quot;real time clock&quot; (RTC).Elapsed real time使用“自系統啟動時間”作為一個參考，和real time clock使用UTC（世界標準時間）。這意味著，elapsed real time 適合於設置基於時間流逝的alarm（例如，警報將觸發每30秒），因為它不會受時區/地區。 real time clock 類型更適合依賴於當前語言環境的alarm。</p>
+                    <p>兩種類型都有一個喚醒版本，即如果屏幕關閉喚醒設備的CPU。這能確保alarm在計劃的時間裡啟動。如果你的App有時間依賴性是非常有用的。例如：有一個有限的窗口來執行特定的操作。如果你沒有使用alarm類型的喚醒版本，那麼只有當你的設備下次喚醒時所有的重複alarm才觸發。</p>
+                    <p>如果你只需要在特定的間隔下（例如：每小時）啟動alarm，用elapsed real time的一種就行。通常，這是一個好的選擇。</p>
+                    <p>如果你需要你的alarm在一天的特定時間啟動，就選擇基於時鐘類型的real time clock一種，但請注意，這種方法可以有一些缺點，應用程序可能無法很好的轉化為其他語言環境，並且如果用戶更改設備的時間設置，可能會導致您的應用程序出現意外行為。如上所述,使用real time clockalarm類型也不能很好地擴展。如果可能我們推薦你使用一個“&quot;elapsed real time”alarm。</p>
+                    <p>這裡有一些類型的列表：</p>
+                    <ul class="simple">
+                        <li>ELAPSED_REALTIME-基於設備啟動後的時間啟動intent，但不喚醒設備，The elapsed time包含設備休眠期間的期間</li>
+                        <li>ELAPSED_REALTIME_WAKEUP-在設備啟動之後，指定時間長度來喚醒設備，並啟動intent</li>
+                        <li>RTC-在一個具體的時間去啟動intent，但是不會喚醒設備</li>
+                        <li>RTC_WAKEUP- 在一個具體的時間喚醒設備，並啟動intent</li>
+                    </ul>
+                    <div class="section" id="elapsed-realtime-wakeup">
+                        <h4><a class="toc-backref" href="#id51">ELAPSED_REALTIME_WAKEUP範例</a>
+                        </h4>
+                        <p>使用ELAPSED_REALTIME_WAKEUP的例子</p>
+                        <p>在30分鐘內喚醒設備並啟動alarm，之後每三十分鐘一次</p>
+                        <pre class="literal-block">
+// Hopefully your alarm will have a lower frequency than this!
+alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+       AlarmManager.INTERVAL_HALF_HOUR,
+       AlarmManager.INTERVAL_HALF_HOUR, alarmIntent);
+</pre>
+                        <p>喚醒設備必再依分鐘之後啟動，僅一次</p>
+                        <pre class="literal-block">
+private AlarmManager alarmMgr;
+private PendingIntent alarmIntent;
+...
+alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+Intent intent = new Intent(context, AlarmReceiver.class);
+alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+
+alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+       SystemClock.elapsedRealtime() +
+       60 * 1000, alarmIntent);
+</pre>
+                    </div>
+                    <div class="section" id="rtc">
+                        <h4><a class="toc-backref" href="#id52">RTC範例</a>
+                        </h4>
+                        <p>這邊是使用RTC_WAKEUP的範例</p>
+                        <p>在下午兩點左右，喚醒設備並啟動alarm，在相同時間每天重複一次</p>
+                        <pre class="literal-block">
+// Set the alarm to start at approximately 2:00 p.m.
+Calendar calendar = Calendar.getInstance();
+calendar.setTimeInMillis(System.currentTimeMillis());
+calendar.set(Calendar.HOUR_OF_DAY, 14);
+
+// With setInexactRepeating(), you have to use one of the AlarmManager interval
+// constants--in this case, AlarmManager.INTERVAL_DAY.
+alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+       AlarmManager.INTERVAL_DAY, alarmIntent);
+</pre>
+                        <p>在精確的上午8：30，喚醒設備並啟動alarm，此後每20分鐘執行一次</p>
+                        <pre class="literal-block">
+private AlarmManager alarmMgr;
+private PendingIntent alarmIntent;
+...
+alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+Intent intent = new Intent(context, AlarmReceiver.class);
+alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+
+// Set the alarm to start at 8:30 a.m.
+Calendar calendar = Calendar.getInstance();
+calendar.setTimeInMillis(System.currentTimeMillis());
+calendar.set(Calendar.HOUR_OF_DAY, 8);
+calendar.set(Calendar.MINUTE, 30);
+
+// setRepeating() lets you specify a precise custom interval--in this case,
+// 20 minutes.
+alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+       1000 * 60 * 20, alarmIntent);
+</pre>
+                    </div>
+                    <div class="section" id="id21">
+                        <h4><a class="toc-backref" href="#id53">決定你的alarm需要多少的精準度</a>
+                        </h4>
+                        <p>如上所述，選擇alarm類型是創建alarm的第一步。另一個區別是你的alarm需要精確多少。對於大多數應用程序，setInexactRepeating（）是正確的選擇。當您使用此方法，Android同步多個不精確的重複alarm，並在同一時間觸發他們。這不僅降低了電池電量的消耗。</p>
+                        <p>對於有剛性時間要求的罕見應用程序，例如，alarm需要精確到上午8:30，並每隔一小時以後用setRepeating（）。但是如果可能的話，你應該避免使用精確的alarm。</p>
+                        <p>使用setInexactRepeating（）方法時你不能指定一個自定義的時間間隔，使用setRepeating（）就可以指定。你必須使用的間隔常量中的一個，如INTERVAL_FIFTEEN_MINUTES，INTERVAL_DAY等等。見AlarmManager的完整列表。</p>
+                    </div>
+                </div>
+                <div class="section" id="id22">
+                    <h3><a class="toc-backref" href="#id54">清除alarm</a>
+                    </h3>
+                    <p>取決於你的app，你可能想有取消alarm的能力。取消一個alarm，在alarmManager中呼叫cancel()方法，傳入你不想再啟動的PendingIntent對象。例如：</p>
+                    <pre class="literal-block">
+// If the alarm has been set, cancel it.
+if (alarmMgr!= null) {
+   alarmMgr.cancel(alarmIntent);
+}
+</pre>
+                </div>
+                <div class="section" id="id23">
+                    <h3><a class="toc-backref" href="#id55">當裝置啟動時運行alarm</a>
+                    </h3>
+                    <p>默認情況下，當設備關閉時所有alarm將被取消。為了阻止這個情況發生，當用戶重啟設備時，你可以設計你的程序自動重啟一個重複alarm。這能保證alarm管理器繼續做它的任務而不需要用戶手動重啟alarm。</p>
+                    <p>以下是步驟：</p>
+                    <ol class="arabic simple">
+                        <li>在你的應用程序配置文件manifest中，添加RECEIVE_BOOT_COMPLETED權限。這允許你的app能接收ACTION_BOOT_COMPLETED 事件廣播，該廣播是系統啟動完成後發送（只在你的app至少被用戶啟動一次後有作用）。</li>
+                    </ol>
+                    <pre class="literal-block">
+&lt;uses-permission android:name=&quot;android.permission.RECEIVE_BOOT_COMPLETED&quot;/&gt;
+</pre>
+                    <ol class="arabic simple" start="2">
+                        <li>實作BroadcastReceiver來接收廣播</li>
+                    </ol>
+                    <pre class="literal-block">
+public class SampleBootReceiver extends BroadcastReceiver {
+
+   &#64;Override
+   public void onReceive(Context context, Intent intent) {
+       if (intent.getAction().equals(&quot;android.intent.action.BOOT_COMPLETED&quot;)) {
+           // Set the alarm here.
+       }
+   }
+}
+</pre>
+                    <ol class="arabic simple" start="3">
+                        <li>添加這個接收器到你的應用配置文件maiifest裡，並用intent filter過濾ACTION_BOOT_COMPLETED事件</li>
+                    </ol>
+                    <pre class="literal-block">
+&lt;receiver android:name=&quot;.SampleBootReceiver&quot;
+       android:enabled=&quot;false&quot;&gt;
+   &lt;intent-filter&gt;
+       &lt;action android:name=&quot;android.intent.action.BOOT_COMPLETED&quot;&gt;&lt;/action&gt;
+   &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+</pre>
+                    <p>注意在配置文件裡，啟動接收器需要設置android:enabled=&quot;false&quot;屬性。這意味著接收器不會被調用，除非應用程序顯式啟用它。這可以防止在啟動接收器不必要的呼叫。可以使一個接收器（例如，如果用戶設置一個alarm）如下</p>
+                    <pre class="literal-block">
+ComponentName receiver = new ComponentName(context, SampleBootReceiver.class);
+PackageManager pm = context.getPackageManager();
+
+pm.setComponentEnabledSetting(receiver,
+       PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+       PackageManager.DONT_KILL_APP);
+</pre>
+                    <p>一旦啟用了接收這種方式，它會保持啟用，即使用戶重新啟動設備。換句話說，通過編程使接收器覆蓋艙單，甚至在重新啟動。接收器將保持啟用，直到您的應用程序禁用它。可以禁用接收器（例如，如果用戶取消alarm），如下所示：</p>
+                    <pre class="literal-block">
+ComponentName receiver = new ComponentName(context, SampleBootReceiver.class);
+PackageManager pm = context.getPackageManager();
+
+pm.setComponentEnabledSetting(receiver,
+       PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+       PackageManager.DONT_KILL_APP);
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
